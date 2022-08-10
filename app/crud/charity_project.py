@@ -14,5 +14,8 @@ class CRUDCharityProject(CRUDBase):
 
         return db_project_id
 
+    async def get_projects_by_completion_rate(self, session: AsyncSession):
+        ...
+
 
 charity_project_crud = CRUDCharityProject(CharityProject)

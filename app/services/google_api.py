@@ -1,9 +1,7 @@
 from datetime import datetime
 from typing import List, Tuple
 
-import aiogoogle.excs
 from aiogoogle import Aiogoogle
-from fastapi import HTTPException, status
 
 from app.core.config import settings
 
@@ -68,7 +66,10 @@ async def spreadsheets_update_value(
     ]
     for res in projects:
         new_row = [
-            str(res['name']), str(res['duration']).replace('.', ','), str(res['description'])]
+            str(res['name']),
+            str(res['duration']).replace('.', ','),
+            str(res['description'])
+        ]
         table_values.append(new_row)
 
     format_body = {
@@ -110,26 +111,17 @@ async def spreadsheets_update_value(
         'values': table_values,
     }
 
-    try:
-        await wrapper_services.as_service_account(
-            service.spreadsheets.values.update(
-                spreadsheetId=spreadsheetid,
-                range='A1:E30',
-                valueInputOption='USER_ENTERED',
-                json=update_body
-            )
+    await wrapper_services.as_service_account(
+        service.spreadsheets.values.update(
+            spreadsheetId=spreadsheetid,
+            range='A1:E30',
+            valueInputOption='USER_ENTERED',
+            json=update_body
         )
+    )
 
-        await wrapper_services.as_service_account(
-            service.spreadsheets.batchUpdate(
-                spreadsheetId=spreadsheetid,
-                json=format_body)
-        )
-    except aiogoogle.excs.HTTPError as err:
-        error = err.res.content.get('error', None)
-        message = ': ' + error.get('message') if error is not None else ''
-
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail='API Google вернул ошибку' + message,
-        )
+    await wrapper_services.as_service_account(
+        service.spreadsheets.batchUpdate(
+            spreadsheetId=spreadsheetid,
+            json=format_body)
+    )

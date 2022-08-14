@@ -1,13 +1,13 @@
-from aiogoogle import Aiogoogle
-from fastapi import APIRouter, Depends
+from aiogoogle import Aiogoogle, excs
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_async_session
 from app.core.google_client import get_service
 from app.core.user import current_superuser
 from app.crud.charity_project import charity_project_crud
-from app.services.google_api import (
-    set_user_permissions, spreadsheets_create, spreadsheets_update_value)
+from app.services.google_api import (set_user_permissions, spreadsheets_create,
+                                     spreadsheets_update_value)
 
 router = APIRouter()
 
@@ -26,9 +26,20 @@ async def get_report(
         session
     )
 
-    spreadsheetid, spreadsheeturl = await spreadsheets_create(wrapper_services)
-    await set_user_permissions(spreadsheetid, wrapper_services)
-    await spreadsheets_update_value(
-        spreadsheetid, projects, wrapper_services)
+    try:
+        spreadsheetid, spreadsheeturl = (
+            await spreadsheets_create(wrapper_services)
+        )
+        await set_user_permissions(spreadsheetid, wrapper_services)
+        await spreadsheets_update_value(
+            spreadsheetid, projects, wrapper_services)
 
-    return spreadsheeturl
+        return spreadsheeturl
+    except excs.HTTPError as err:
+        error = err.res.content.get('error', None)
+        message = ': ' + error.get('message') if error is not None else ''
+
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='API Google вернул ошибку' + message,
+        )

@@ -12,9 +12,9 @@ from app.services.google_api import (
 router = APIRouter()
 
 
-@router.post(
+@router.get(
     '/',
-    response_model=list[dict[str, int]],
+    response_model=str,
     dependencies=[Depends(current_superuser)],
 )
 async def get_report(
@@ -26,9 +26,9 @@ async def get_report(
         session
     )
 
-    spreadsheetid = await spreadsheets_create(wrapper_services)
+    spreadsheetid, spreadsheeturl = await spreadsheets_create(wrapper_services)
     await set_user_permissions(spreadsheetid, wrapper_services)
     await spreadsheets_update_value(
         spreadsheetid, projects, wrapper_services)
 
-    return projects
+    return spreadsheeturl

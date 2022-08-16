@@ -58,6 +58,9 @@ AUTH_URI=https://accounts.google.com/o/oauth2/auth
 TOKEN_URI=https://oauth2.googleapis.com/token
 AUTH_PROVIDER_X509_CERT_URL=https://www.googleapis.com/oauth2/v1/certs
 CLIENT_X509_CERT_URL=
+SHEETS_API_VERSION=v4
+DRIVE_API_VERSION=v3
+FILE_LOCALE=ru_RU
 ```
 
 # Инициализация БД 

@@ -51,13 +51,13 @@ async def check_project_data_for_create(
 ) -> None:
     """Проверка данных для создания проекта."""
 
-    if obj_in.name in [None, ""]:
+    if obj_in.name in [None, '']:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail='Не задано имя проекта',
         )
 
-    if obj_in.description in [None, ""]:
+    if obj_in.description in [None, '']:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail='Не задано описание проекта',
